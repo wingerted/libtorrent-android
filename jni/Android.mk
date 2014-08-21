@@ -2,12 +2,22 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := libboost_system
-LOCAL_SRC_FILES := boost/android/lib/libboost_system.a
+LOCAL_SRC_FILES := boost/android/lib/libboost_system-gcc-mt-1_53.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := libboost_filesystem
-LOCAL_SRC_FILES := boost/android/lib/libboost_filesystem.a
+LOCAL_SRC_FILES := boost/android/lib/libboost_filesystem-gcc-mt-1_53.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE    := libssl
+LOCAL_SRC_FILES := libssl.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE    := libcrypto
+LOCAL_SRC_FILES := libcrypto.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -17,17 +27,29 @@ LOCAL_CFLAGS := -DBOOST_ASIO_HASH_MAP_BUCKETS=1021 \
 				-DBOOST_FILESYSTEM_VERSION=3 \
 				-DUNICODE \
 				-DWITH_SHIPPED_GEOIP_H \
-				-DTORRENT_BUILDING_STATIC \
-				-DBOOST_ASIO_SEPARATE_COMPILATION \
+				-DTORRENT_BUILDING_SHARED \
+				-DBOOST_ASIO_DYN_LINK \
 				-DBOOST_ASIO_ENABLE_CANCELIO \
 				-DTORRENT_USE_ICONV=0 \
 				-DTORRENT_USE_TOMMATH
+# -DBOOST_ASIO_SEPARATE_COMPILATION
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
 					$(LOCAL_PATH)/boost \
 					$(LOCAL_PATH)/openssl/include
+					#$(LOCAL_PATH)/include/ed25519/src
 
-LOCAL_SRC_FILES := 	src/alert.cpp \
+LOCAL_SRC_FILES := ed25519/src/add_scalar.c \
+					ed25519/src/fe.c \
+					ed25519/src/ge.c \
+					ed25519/src/key_exchange.c \
+					ed25519/src/keypair.c \
+					ed25519/src/sc.c \
+					ed25519/src/sha512.c \
+					ed25519/src/sign.c \
+					ed25519/src/verify.c \
+					src/simple_test.cpp \
+					src/alert.cpp \
 					src/asio_ssl.cpp \
 					src/hasher.cpp \
 					src/ip_voter.cpp \
@@ -111,6 +133,7 @@ LOCAL_SRC_FILES := 	src/alert.cpp \
 					src/utp_stream.cpp \
 					src/web_connection_base.cpp \
 					src/web_peer_connection.cpp \
+					src/xml_parse.cpp \
 					src/alert_manager.cpp \
 					src/kademlia/dht_tracker.cpp \
 					src/kademlia/node.cpp \
@@ -126,7 +149,9 @@ LOCAL_SRC_FILES := 	src/alert.cpp \
 					src/kademlia/traversal_algorithm.cpp
 
 LOCAL_STATIC_LIBRARIES := libboost_system \
-						  libboost_filesystem
+						  libboost_filesystem \
+							libssl \
+							libcrypto
 
-include $(BUILD_STATIC_LIBRARY)
-#include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
